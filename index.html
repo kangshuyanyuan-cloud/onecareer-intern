@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>インターン選別リスト</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --sub: #5b6475; --line: #e2e6ec;
+  --accent: #2f6fde; --accent-soft: #e8f0fd; --good: #1f8a4c; --good-soft: #e6f5ec;
+  --warn: #b25b00; --warn-soft: #fdf0e1; --new: #c2185b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b; --card: #1b2029; --text: #e6e9ef; --sub: #9aa3b2; --line: #2b323e;
+    --accent: #7aa7ff; --accent-soft: #1f2b44; --good: #6fd39b; --good-soft: #17301f;
+    --warn: #f0b36a; --warn-soft: #33261a; --new: #ff7aa8;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  line-height: 1.6; -webkit-text-size-adjust: 100%; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 16px; }
+header h1 { font-size: 1.35rem; margin: 8px 0 4px; }
+.meta { color: var(--sub); font-size: .85rem; }
+.notice { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 8px 12px; font-size: .85rem; margin-top: 8px; }
+
+details.filters { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 16px 0; }
+details.filters > summary { cursor: pointer; padding: 12px 16px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+details.filters > summary::-webkit-details-marker { display: none; }
+details.filters > summary .chev { color: var(--sub); font-weight: 400; font-size: .85rem; white-space: nowrap; }
+.fbody { padding: 4px 16px 16px; display: grid; gap: 14px; }
+.fgroup h3 { font-size: .8rem; color: var(--sub); margin: 0 0 6px; font-weight: 600; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+label.chk { display: inline-flex; align-items: center; gap: 6px; font-size: .92rem; cursor: pointer; }
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+select, input[type=text], input[type=number] { font: inherit; font-size: .92rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+input[type=text] { width: 100%; }
+input[type=number] { width: 80px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 4px 10px; font-size: .82rem; cursor: pointer; }
+.chip[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip small { opacity: .7; margin-left: 4px; }
+.btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.count { font-weight: 600; margin: 8px 0 12px; }
+.count small { color: var(--sub); font-weight: 400; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+.card .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.card .company { font-weight: 700; font-size: 1.02rem; }
+.card .ind { color: var(--sub); font-size: .8rem; }
+.card .title { margin: 4px 0 10px; font-size: .92rem; word-break: break-word; }
+.badge-new { color: var(--new); font-size: .75rem; font-weight: 700; margin-left: 6px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tag { font-size: .78rem; border-radius: 6px; padding: 2px 8px; background: var(--accent-soft); color: var(--accent); }
+.tag.money { background: var(--good-soft); color: var(--good); }
+.tag.dl { background: var(--warn-soft); color: var(--warn); }
+dl.info { display: grid; grid-template-columns: 4.5em 1fr; gap: 2px 8px; margin: 0 0 10px; font-size: .88rem; }
+dl.info dt { color: var(--sub); }
+dl.info dd { margin: 0; word-break: break-word; }
+a.open { display: inline-block; text-decoration: none; background: var(--accent); color: #fff; border-radius: 8px; padding: 8px 14px; font-size: .9rem; }
+.more { text-align: center; margin: 8px 0 24px; }
+.empty { background: var(--card); border: 1px dashed var(--line); border-radius: 12px; padding: 24px; text-align: center; color: var(--sub); }
+footer { color: var(--sub); font-size: .78rem; margin: 24px 0 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>インターン選別リスト</h1>
+    <div class="meta" id="meta">読み込み中...</div>
+    <div class="notice" id="notice" hidden></div>
+  </header>
+
+  <details class="filters" id="filters">
+    <summary><span>絞り込み条件</span><span class="chev" id="condSummary"></span></summary>
+    <div class="fbody">
+      <div class="fgroup">
+        <h3>選考</h3>
+        <div class="row">
+          <label>面接は
+            <select id="max_interviews">
+              <option value="0">0回（面接なし）</option><option value="1">1回まで</option>
+              <option value="2">2回まで</option><option value="3">3回まで</option><option value="99">何回でも</option>
+            </select>
+          </label>
+          <label class="chk"><input type="checkbox" id="allow_ability_test">能力検査（SPI等）ありも含める</label>
+          <label class="chk"><input type="checkbox" id="require_early">早期選考・本選考の優遇あり</label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h3>お金</h3>
+        <div class="row">
+          <label class="chk"><input type="checkbox" id="transport_full_only">交通費は全額支給だけ</label>
+          <label class="chk"><input type="checkbox" id="exclude_remote_only">遠方者のみ支給を除く</label>
+          <label class="chk"><input type="checkbox" id="require_lodging">宿泊費が出る</label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h3>開催地（選んだどれかで開催）</h3>
+        <div class="chips" id="prefectures"></div>
+      </div>
+      <div class="fgroup">
+        <h3>業界</h3>
+        <div class="chips" id="industries"></div>
+      </div>
+      <div class="fgroup">
+        <h3>その他</h3>
+        <div class="row">
+          <label>締切まで <input type="number" id="min_days_left" min="0" max="90"> 日以上</label>
+          <label>クチコミ評価
+            <select id="min_review">
+              <option value="0">指定なし</option><option value="3">3.0以上</option><option value="3.5">3.5以上</option><option value="4">4.0以上</option>
+            </select>
+          </label>
+          <label class="chk"><input type="checkbox" id="include_unknown">選考の記載がないもの等も含める</label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h3>タイトルのキーワード（スペース区切り）</h3>
+        <div class="row" style="flex-wrap:nowrap; gap:8px">
+          <input type="text" id="keywords_in" placeholder="含む（例: 1day 理系）">
+          <input type="text" id="keywords_out" placeholder="除く（例: 営業）">
+        </div>
+      </div>
+      <div class="row"><button class="btn" id="reset">最初の条件に戻す</button></div>
+    </div>
+  </details>
+
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+  <div class="more"><button class="btn primary" id="more" hidden>さらに10件表示</button></div>
+
+  <footer>
+    <p>ONE CAREER（ワンキャリア）で募集中のインターンから、交通費が出るものを選び、AIが募集要項を読み取って整理したリストです。
+    AIの読み取りは誤ることがあります。応募前に必ず募集ページで内容を確認してください。</p>
+    <p>最初の条件: 交通費あり・対面の日程あり・面接2回以下・能力検査なし。条件はこの端末に保存されます。</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const PAGE = 10;
+const DEFAULTS = {
+  max_interviews: 2, allow_ability_test: false, include_unknown: false,
+  transport_full_only: false, exclude_remote_only: false, require_lodging: false, require_early: false,
+  prefectures: [], industries: [], min_days_left: 0, min_review: 0, keywords_in: [], keywords_out: [],
+};
+const STORE_KEY = "oc-intern-filters-v1";
+let DATA = null, F = load(), shown = PAGE;
+
+function load() {
+  try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
+  catch (e) { return Object.assign({}, DEFAULTS); }
+}
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(F)); } catch (e) {} }
+
+// ===== 合否（Python の decide.py / filters.py と同じ決まり） =====
+function decide(a) {
+  const unk = F.include_unknown;
+  if (a.fmt === "オンラインのみ") return false;
+  if (F.transport_full_only && !a.full) return false;
+  if (F.exclude_remote_only && a.remote) return false;
+  if (a.fmt === "不明" && !unk) return false;
+  if (F.require_lodging && a.lodg !== "支給") return false;
+  if (F.require_early && !a.early) return false;
+  if (!a.stated && !a.nosel) return unk;
+  const n = (a.nosel && a.iv === null) ? 0 : a.iv;
+  if (n === null && !unk) return false;
+  if (n !== null && n > F.max_interviews) return false;
+  if (a.abil === "あり" && !F.allow_ability_test) return false;
+  if (a.abil === "不明" && !unk) return false;
+  return true;
+}
+function currentDeadline(r, nowIso) {
+  const f = r.dl.filter(d => d > nowIso);
+  if (f.length) return { dl: f[0], closed: false };
+  return { dl: null, closed: !r.nodl };
+}
+function evaluate(r, now) {
+  const { dl, closed } = currentDeadline(r, now.toISOString());
+  r._dl = dl;
+  if (closed || !decide(r.a)) return false;
+  if (F.prefectures.length && !r.pl.some(p => F.prefectures.includes(p))) return false;
+  if (F.industries.length && !F.industries.includes(r.ind)) return false;
+  if (F.min_days_left && dl && (new Date(dl) - now) / 864e5 < F.min_days_left) return false;
+  if (F.min_review && (r.rev || 0) < F.min_review) return false;
+  if (F.keywords_in.length && !F.keywords_in.some(k => r.t.includes(k))) return false;
+  if (F.keywords_out.some(k => r.t.includes(k))) return false;
+  return true;
+}
+
+// ===== 表示 =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const WEEK = "日月火水木金土";
+
+function fmtDeadline(iso, now) {
+  if (!iso) return "締切の記載なし";
+  const d = new Date(iso), h = (d - now) / 36e5;
+  const rest = h < 24 ? `あと${Math.max(0, Math.floor(h))}時間` : `あと${Math.floor(h / 24)}日`;
+  const hm = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
+  const jd = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  return `${jd.getMonth() + 1}/${jd.getDate()}(${WEEK[jd.getDay()]}) ${hm} 締切・${rest}`;
+}
+
+function card(r, now) {
+  const a = r.a, tags = [];
+  tags.push(`<span class="tag dl">${esc(fmtDeadline(r._dl, now))}</span>`);
+  tags.push(`<span class="tag money">交通費: ${esc(a.td || "支給あり")}</span>`);
+  if (a.lodg === "支給") tags.push(`<span class="tag money">宿泊費あり</span>`);
+  if (a.early) tags.push(`<span class="tag">早期選考: ${esc(a.ed || "あり")}</span>`);
+  const ind = [r.ind, r.rev ? `クチコミ${r.rev}` : ""].filter(Boolean).join(" / ");
+  return `<article class="card">
+    <div class="top"><span class="company">${esc(r.c)}${r.new ? '<span class="badge-new">新着</span>' : ""}</span><span class="ind">${esc(ind)}</span></div>
+    <div class="title">${esc(r.t)}</div>
+    <div class="tags">${tags.join("")}</div>
+    <dl class="info"><dt>選考</dt><dd>${esc(a.flow)}</dd>${r.pl.length ? `<dt>開催地</dt><dd>${esc(r.pl.join(" / "))}</dd>` : ""}</dl>
+    <a class="open" href="https://www.onecareer.jp/events/internship/${r.id}" target="_blank" rel="noopener">募集ページを開く</a>
+  </article>`;
+}
+
+function render() {
+  const now = new Date();
+  const hit = DATA.rows.filter(r => evaluate(r, now))
+    .sort((x, y) => (x._dl === null) - (y._dl === null) || String(x._dl).localeCompare(String(y._dl)));
+  const newN = hit.filter(r => r.new).length;
+  $("count").innerHTML = `条件に合うインターン ${hit.length}件${newN ? `<small>（うち新着 ${newN}件）</small>` : ""} <small>締切が近い順</small>`;
+  $("list").innerHTML = hit.length
+    ? hit.slice(0, shown).map(r => card(r, now)).join("")
+    : `<div class="empty">条件に合うインターンがありません。絞り込み条件をゆるめてください。</div>`;
+  $("more").hidden = shown >= hit.length;
+  $("condSummary").textContent = summary();
+}
+
+function summary() {
+  const s = [];
+  if (F.max_interviews !== DEFAULTS.max_interviews) s.push(F.max_interviews === 99 ? "面接回数不問" : `面接${F.max_interviews}回まで`);
+  const flags = { allow_ability_test: "能力検査も可", include_unknown: "不明も含む", transport_full_only: "全額", exclude_remote_only: "遠方のみ除く", require_lodging: "宿泊費", require_early: "早期選考" };
+  for (const k in flags) if (F[k]) s.push(flags[k]);
+  if (F.prefectures.length) s.push(F.prefectures.join("・"));
+  if (F.industries.length) s.push(F.industries.join("・"));
+  if (F.min_days_left) s.push(`締切${F.min_days_left}日以上`);
+  if (F.min_review) s.push(`クチコミ${F.min_review}+`);
+  if (F.keywords_in.length || F.keywords_out.length) s.push("キーワード");
+  return s.length ? s.join(" / ") : "最初の条件（タップで変更）";
+}
+
+function chips(id, field, values) {
+  const cnt = {};
+  DATA.rows.forEach(r => (field === "pl" ? r.pl : [r.ind]).forEach(v => { if (v) cnt[v] = (cnt[v] || 0) + 1; }));
+  const key = id;
+  const names = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]);
+  $(id).innerHTML = names.map(n => `<button type="button" class="chip" aria-pressed="${F[key].includes(n)}" data-v="${esc(n)}">${esc(n)}<small>${cnt[n]}</small></button>`).join("");
+  $(id).onclick = e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const v = b.dataset.v, list = F[key];
+    F[key] = list.includes(v) ? list.filter(x => x !== v) : list.concat(v);
+    b.setAttribute("aria-pressed", F[key].includes(v));
+    changed();
+  };
+}
+
+function bindInputs() {
+  ["allow_ability_test", "include_unknown", "transport_full_only", "exclude_remote_only", "require_lodging", "require_early"]
+    .forEach(k => { $(k).checked = !!F[k]; $(k).onchange = () => { F[k] = $(k).checked; changed(); }; });
+  $("max_interviews").value = String(F.max_interviews);
+  $("max_interviews").onchange = () => { F.max_interviews = Number($("max_interviews").value); changed(); };
+  $("min_review").value = String(F.min_review);
+  $("min_review").onchange = () => { F.min_review = Number($("min_review").value); changed(); };
+  $("min_days_left").value = F.min_days_left || "";
+  $("min_days_left").oninput = () => { F.min_days_left = Math.max(0, Number($("min_days_left").value) || 0); changed(); };
+  ["keywords_in", "keywords_out"].forEach(k => {
+    $(k).value = F[k].join(" ");
+    $(k).oninput = () => { F[k] = $(k).value.replace(/[、,]/g, " ").split(/\s+/).filter(Boolean); changed(); };
+  });
+  chips("prefectures", "pl");
+  chips("industries", "ind");
+}
+
+function changed() { shown = PAGE; save(); render(); }
+
+$("more").onclick = () => { shown += PAGE; render(); };
+$("reset").onclick = () => { F = Object.assign({}, DEFAULTS, { prefectures: [], industries: [], keywords_in: [], keywords_out: [] }); bindInputs(); changed(); };
+
+fetch("data.json", { cache: "no-cache" })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => {
+    DATA = d;
+    const u = new Date(d.updated_at);
+    $("meta").textContent = `${d.graduate}・最終更新 ${u.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}（週1回更新）・募集中 ${d.listed}件から選別`;
+    if (d.unjudged) { $("notice").hidden = false; $("notice").textContent = `この更新では ${d.unjudged}件をまだ読み取れていません。次の更新で増えることがあります。`; }
+    bindInputs();
+    render();
+  })
+  .catch(e => { $("meta").textContent = "データを読み込めませんでした。時間をおいて開き直してください。"; });
+</script>
+</body>
+</html>
