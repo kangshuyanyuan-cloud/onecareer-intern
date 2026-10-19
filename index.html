@@ -121,6 +121,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .3); }
 .c-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; }
 .c-head h3 { margin: 0; font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .card.main .c-head h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+.c-head .fixed { font-size: .82rem; font-weight: 700; color: var(--tag); background: var(--brand-soft); border-radius: 999px; padding: 4px 18px; }
 .c-head .val { font-size: .74rem; color: var(--tag); font-weight: 700; text-align: right; }
 .c-body { padding: 2px 16px 16px; }
 .c-body[hidden] { display: none; }
@@ -247,7 +248,7 @@ const DEFAULTS = {
   max_interviews: 2, allow_ability_test: false, include_unknown: false,
   transport_full_only: false, exclude_remote_only: false, require_lodging: false, require_early: false,
   prefectures: [], industries: [], min_days_left: 0, min_review: 0, keywords_in: [], keywords_out: [],
-  min_transport: 0, exclude_steps: [], exclude_lodging: false, transport_none: false,
+  min_transport: 0, exclude_steps: [], exclude_lodging: false,
 };
 const STORE_KEY = "oc-intern-filters-v1";
 let DATA = null, F = load(), shown = PAGE;
@@ -286,7 +287,6 @@ function evaluate(r, now) {
   r._dl = dl;
   if (closed || !decide(r.a)) return false;
   if (F.min_transport && !(r.a.full || (r.a.amt || 0) >= F.min_transport)) return false;
-  if (F.transport_none) return false;  // 載っているのは交通費が出るものだけ
   if (F.exclude_lodging && r.a.lodg === "支給") return false;
   if (F.exclude_steps.length && r.a.st.some(s => F.exclude_steps.includes(s))) return false;
   if (F.prefectures.length && !r.pl.some(p => F.prefectures.includes(p))) return false;
@@ -376,7 +376,6 @@ function changes(f) {
   else if (f.min_transport) out.push(["transport", `交通費${yen(f.min_transport)}以上`]);
   if (f.exclude_remote_only) out.push(["exclude_remote_only", "遠方者のみ支給を除く"]);
   if (f.require_lodging) out.push(["require_lodging", "宿泊費あり"]);
-  if (f.transport_none) out.push(["transport_none", "交通費なし"]);
   if (f.exclude_lodging) out.push(["exclude_lodging", "宿泊費なし"]);
   if (f.max_interviews !== DEFAULTS.max_interviews)
     out.push(["max_interviews", f.max_interviews === 99 ? "面接回数は問わない" : f.max_interviews === 0 ? "面接なし" : `面接${f.max_interviews}回まで`]);
@@ -427,7 +426,6 @@ let D = null, U = null;
 function openSheet() {
   D = JSON.parse(JSON.stringify(F));
   U = {   // カードが開いているか
-    transport: D.transport_none ? "no" : (D.min_transport || D.transport_full_only || D.exclude_remote_only) ? "yes" : "any",
     words: !!(D.keywords_in.length || D.keywords_out.length),
     place: !!D.prefectures.length, industry: !!D.industries.length, review: !!D.min_review,
   };
@@ -469,13 +467,13 @@ function drawSheet() {
       <label>除く<input type="text" data-kw="keywords_out" value="${esc(D.keywords_out.join(" "))}" placeholder="例: 営業" enterkeyhint="done"></label>
     </div><p class="hint">募集のタイトルで探します。スペースで区切ると複数の言葉で探せます。</p>`, ""));
 
-  const tr = U.transport;
-  cards.push(`<section class="card main"><div class="c-head"><h3>交通費の支給</h3>${seg("transport", tr, [["any", "問わない"], ["yes", "あり"], ["no", "なし"]])}</div>
-    ${tr === "any" ? "" : `<div class="c-body">${tr === "no" ? `<p class="hint" style="margin:0">このサイトは交通費が出るインターンだけを載せているため、「なし」を選ぶと0件になります。</p>` : `
+  cards.push(`<section class="card main"><div class="c-head"><h3>交通費の支給</h3><span class="fixed">あり</span></div>
+    <div class="c-body">
       ${slider("transport", tVal)}
       <p class="hint">上限・一律の額で比べます。全額支給は常に含みます。額が書いていない募集（「規定額」など${amtUnknown}件）は、金額を決めると外れます。</p>
-      <label class="sw"><span>「遠方の人だけ支給」を除く</span><input type="checkbox" data-flag="exclude_remote_only" ${D.exclude_remote_only ? "checked" : ""}></label>`}
-    </div>`}</section>`);
+      <label class="sw"><span>「遠方の人だけ支給」を除く</span><input type="checkbox" data-flag="exclude_remote_only" ${D.exclude_remote_only ? "checked" : ""}></label>
+      <p class="hint">このサイトは交通費が出るインターンだけを載せています。</p>
+    </div></section>`);
 
   const lodg = D.require_lodging ? "yes" : D.exclude_lodging ? "no" : "any";
   cards.push(`<section class="card main"><div class="c-head"><h3>宿泊費の支給</h3>${seg("lodging", lodg, [["any", "問わない"], ["yes", "あり"], ["no", "なし"]])}</div>
@@ -532,15 +530,8 @@ function sheetEvents() {
     const t = e.target;
     const sg = t.closest("[data-seg]");
     if (sg) {
-      const v = sg.dataset.v;
-      if (sg.dataset.seg === "transport") {
-        U.transport = v;
-        D.transport_none = v === "no";
-        if (v !== "yes") { D.min_transport = 0; D.transport_full_only = false; D.exclude_remote_only = false; }
-      } else {
-        D.require_lodging = v === "yes";
-        D.exclude_lodging = v === "no";
-      }
+      D.require_lodging = sg.dataset.v === "yes";
+      D.exclude_lodging = sg.dataset.v === "no";
       return drawSheet();
     }
     const st = t.closest("[data-step]");
@@ -600,7 +591,7 @@ function sheetEvents() {
   $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });  // 外側（暗いところ）を押したら閉じる
   $("sheet").addEventListener("close", () => document.body.classList.remove("locked"));
   $("closeBtn").onclick = closeSheet;
-  $("reset").onclick = () => { D = fresh(); U = { transport: "any", words: false, place: false, industry: false, review: false }; drawSheet(); };
+  $("reset").onclick = () => { D = fresh(); U = { words: false, place: false, industry: false, review: false }; drawSheet(); };
   $("goBtn").onclick = () => { F = D; applied(); closeSheet(); window.scrollTo({ top: 0 }); };
 }
 
