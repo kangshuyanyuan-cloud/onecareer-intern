@@ -617,10 +617,10 @@ fetch("data.json", { cache: "no-cache" })
     const u = jst(d.updated_at);
     $("eyebrow").textContent = `${d.graduate}・ONE CAREER 掲載の募集中インターンから選別`;
     $("meta").textContent = `${u.getMonth() + 1}月${u.getDate()}日 ${String(u.getHours()).padStart(2, "0")}:${String(u.getMinutes()).padStart(2, "0")} 更新・募集中 ${d.listed.toLocaleString()}件から選別・1日4回更新`;
-    // 予約実行は6時間おき。2回分（13時間）より古ければ、更新が止まっていると知らせる
+    // 丸3日（72時間）更新が無ければ、自動更新が止まっていると知らせる（予約実行は6時間おき）
     const notes = [];
     const age = (Date.now() - new Date(d.updated_at)) / 36e5;
-    if (age > 13) notes.push(`自動更新が止まっているようです（最後の更新から${age < 48 ? `${Math.floor(age)}時間` : `${Math.floor(age / 24)}日`}）。締切や募集内容が古いかもしれません。`);
+    if (age > 72) notes.push(`自動更新が止まっているようです（最後の更新から${age < 48 ? `${Math.floor(age)}時間` : `${Math.floor(age / 24)}日`}）。締切や募集内容が古いかもしれません。`);
     if (d.unjudged) notes.push(`${d.unjudged}件をまだ読み取れていません。次の更新で増えることがあります。`);
     if (d.stale) notes.push(`${d.stale}件は募集内容が変わったあと、まだ読み直せていません（前回の読み取りで表示中）。`);
     if (notes.length) { $("notice").hidden = false; $("notice").innerHTML = notes.map(esc).join("<br>"); }
