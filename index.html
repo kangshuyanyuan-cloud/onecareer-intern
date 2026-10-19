@@ -10,18 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #ffffff; --bg2: #f4f4f2; --text: #18181a; --sub: #6e6e73; --faint: #a3a3a8; --line: #e6e6e3;
+  --bg: #ffffff; --bg2: #f4f4f2; --text: #18181a; --sub: #6e6e73; --faint: #a3a3a8; --line: #e3e3e0;
   --accent: #c8361b; --on-ink: #ffffff;
+  --ck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7.2l2.6 2.6L11 4.4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #131314; --bg2: #1d1d1f; --text: #ececea; --sub: #9c9ca1; --faint: #66666b; --line: #2c2c2f;
+    --bg: #131314; --bg2: #1e1e20; --text: #ececea; --sub: #9c9ca1; --faint: #66666b; --line: #2e2e31;
     --accent: #ff6e4f; --on-ink: #131314;
+    --ck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7.2l2.6 2.6L11 4.4' fill='none' stroke='%23131314' stroke-width='2'/%3E%3C/svg%3E");
   }
 }
 :root[data-theme="dark"] {
-  --bg: #131314; --bg2: #1d1d1f; --text: #ececea; --sub: #9c9ca1; --faint: #66666b; --line: #2c2c2f;
+  --bg: #131314; --bg2: #1e1e20; --text: #ececea; --sub: #9c9ca1; --faint: #66666b; --line: #2e2e31;
   --accent: #ff6e4f; --on-ink: #131314;
+    --ck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7.2l2.6 2.6L11 4.4' fill='none' stroke='%23131314' stroke-width='2'/%3E%3C/svg%3E");
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -59,9 +62,9 @@ button { font: inherit; color: inherit; }
 
 /* 一覧 */
 #list { list-style: none; margin: 0; padding: 0; }
-.item { display: grid; grid-template-columns: 4.2em 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line);
+.item { display: grid; grid-template-columns: 4.2em 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line);
   color: inherit; text-decoration: none; }
-@media (hover: hover) { .item:hover .ti { text-decoration: underline; text-underline-offset: 3px; } }
+@media (hover: hover) { .item:hover .co strong { text-decoration: underline; text-underline-offset: 3px; } }
 .when { font-variant-numeric: tabular-nums; line-height: 1.25; padding-top: 2px; }
 .when b { display: block; font-size: 1.15rem; font-weight: 700; }
 .when .wd { font-size: .72rem; color: var(--sub); }
@@ -69,14 +72,18 @@ button { font: inherit; color: inherit; }
 .when.soon b, .when.soon em { color: var(--accent); }
 .when .none { font-size: .75rem; color: var(--sub); }
 .co { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
-.co strong { font-size: .98rem; font-weight: 700; }
+.co strong { font-size: 1rem; font-weight: 700; }
 .co .new { font-size: .7rem; font-weight: 700; color: var(--accent); letter-spacing: .05em; }
-.co .ind { font-size: .74rem; color: var(--sub); }
-.ti { margin: 3px 0 8px; font-size: .86rem; color: var(--text); opacity: .86;
+.ti { margin: 2px 0 10px; font-size: .8rem; color: var(--sub);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
-.facts { display: grid; grid-template-columns: 4.4em 1fr; gap: 1px 10px; margin: 0; font-size: .8rem; }
-.facts dt { color: var(--sub); }
-.facts dd { margin: 0; word-break: break-word; }
+/* 大事な3つ（交通費・宿泊費・選考）は枠で囲って太字 */
+.key { margin: 0; border-left: 3px solid var(--text); background: var(--bg2); padding: 8px 10px; display: grid;
+  grid-template-columns: 3.6em 1fr; gap: 4px 10px; font-size: .86rem; }
+.key dt { color: var(--sub); font-size: .76rem; padding-top: 2px; }
+.key dd { margin: 0; font-weight: 700; word-break: break-word; line-height: 1.5; }
+.key dd.no { font-weight: 400; color: var(--sub); }
+.sub-info { margin: 8px 0 0; font-size: .76rem; color: var(--sub); }
+.sub-info span + span::before { content: "／"; margin: 0 4px; color: var(--faint); }
 .empty { padding: 48px 0; text-align: center; color: var(--sub); font-size: .9rem; }
 .empty button { margin-top: 12px; }
 .more { padding: 20px 0 8px; text-align: center; }
@@ -86,7 +93,7 @@ footer p { margin: 0 0 6px; }
 
 /* 条件の画面（スマホは下からせり上がる・PCは右側） */
 body.locked { overflow: hidden; }
-dialog.sheet { padding: 0; border: 0; margin: 0; background: var(--bg); color: var(--text);
+dialog.sheet { padding: 0; border: 0; margin: 0; background: var(--bg2); color: var(--text);
   position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 92dvh; height: 92dvh;
   border-radius: 10px 10px 0 0; display: none; flex-direction: column; }
 dialog.sheet[open] { display: flex; animation: up .22s ease-out; }
@@ -94,33 +101,63 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .45); }
 @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { dialog.sheet[open] { animation: none; } }
 @media (min-width: 760px) {
-  dialog.sheet { inset: 0 0 0 auto; width: 420px; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  dialog.sheet { inset: 0 0 0 auto; width: 440px; height: 100dvh; max-height: 100dvh; border-radius: 0; }
 }
-.sh-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.sh-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
 .sh-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
 .sh-head button { border: 0; background: none; font-size: .9rem; padding: 4px 2px; cursor: pointer; color: var(--sub); }
-.sh-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 24px; }
-.sec { padding: 18px 0 4px; }
-.sec + .sec { border-top: 1px solid var(--line); }
-.sec h3 { margin: 0 0 10px; font-size: .86rem; font-weight: 700; }
-.sec h3 small { font-weight: 400; color: var(--sub); margin-left: 6px; font-size: .74rem; }
+.sh-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; gap: 10px; align-content: start; }
 
-.seg { display: flex; border: 1px solid var(--text); border-radius: 4px; overflow: hidden; }
-.seg button { flex: 1; border: 0; border-left: 1px solid var(--text); background: var(--bg); padding: 8px 2px; font-size: .82rem; cursor: pointer; white-space: nowrap; }
+/* 条件のカード。見出しの行だけ最初に見せ、選んだら中身が開く */
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+.card.main { border-color: var(--text); }
+.c-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; }
+.c-head h3 { margin: 0; font-size: .95rem; font-weight: 700; }
+.c-head .val { font-size: .8rem; color: var(--sub); text-align: right; }
+.c-body { padding: 0 14px 14px; }
+.c-body[hidden] { display: none; }
+.hint { margin: 8px 0 0; font-size: .74rem; color: var(--sub); line-height: 1.5; }
+.groupname { margin: 14px 0 8px; font-size: .78rem; color: var(--sub); }
+
+.seg { display: inline-flex; border: 1px solid var(--text); border-radius: 4px; overflow: hidden; flex: none; }
+.seg button { border: 0; border-left: 1px solid var(--text); background: var(--bg); padding: 5px 12px; font-size: .8rem; cursor: pointer; white-space: nowrap; }
 .seg button:first-child { border-left: 0; }
 .seg button[aria-pressed="true"] { background: var(--text); color: var(--on-ink); font-weight: 700; }
 
-.sw { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
-.sw + .sw { border-top: 1px dashed var(--line); }
-.sw .lb { font-size: .88rem; }
-.sw .lb small { display: block; color: var(--sub); font-size: .74rem; line-height: 1.45; }
-.sw input { appearance: none; -webkit-appearance: none; flex: none; width: 40px; height: 24px; border-radius: 12px;
+/* つまみを横に動かすバー */
+.slider { padding: 2px 0 0; }
+.slider .now { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.slider .now small { font-weight: 400; color: var(--sub); font-size: .76rem; margin-left: 6px; }
+.slider input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; cursor: pointer; touch-action: pan-y; }
+.slider input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--text) var(--p, 0%), var(--line) var(--p, 0%)); }
+.slider input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line); }
+.slider input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--text); }
+.slider input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -10px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.slider input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 2px solid var(--text); }
+.slider input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ticks { position: relative; height: 1.3em; font-size: .68rem; color: var(--faint); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; top: 0; white-space: nowrap; left: calc(12px + (100% - 24px) * var(--t)); transform: translateX(-50%); }
+.ticks span:first-child { left: 0; transform: none; }
+.ticks span:last-child { left: auto; right: 0; transform: none; }
+
+.sw { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0 0; cursor: pointer; font-size: .86rem; }
+.sw input, .c-head input { appearance: none; -webkit-appearance: none; flex: none; width: 40px; height: 24px; border-radius: 12px;
   background: var(--line); position: relative; cursor: pointer; transition: background .15s; margin: 0; }
-.sw input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+.sw input::after, .c-head input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
   background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
-.sw input:checked { background: var(--text); }
-.sw input:checked::after { transform: translateX(16px); background: var(--on-ink); }
-.sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sw input:checked, .c-head input:checked { background: var(--text); }
+.sw input:checked::after, .c-head input:checked::after { transform: translateX(16px); background: var(--on-ink); }
+.sw input:focus-visible, .c-head input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.c-head { cursor: pointer; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 6px; }
+.ck { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--bg); border-radius: 4px;
+  padding: 6px 10px 6px 8px; font-size: .84rem; cursor: pointer; }
+.ck::before { content: ""; width: 14px; height: 14px; border: 1.5px solid var(--faint); border-radius: 2px; flex: none; }
+.ck[aria-pressed="true"] { border-color: var(--text); }
+.ck[aria-pressed="true"]::before { border-color: var(--text); background: var(--text) var(--ck) center/12px no-repeat; }
+.ck[aria-pressed="false"] { color: var(--sub); text-decoration: line-through; text-decoration-color: var(--faint); }
 
 .region { margin-bottom: 12px; }
 .region .rh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
@@ -142,6 +179,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .45); }
 .sh-foot { display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
 .sh-foot .reset { border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 12px 14px; font-size: .86rem; cursor: pointer; white-space: nowrap; }
 .sh-foot .go { flex: 1; border: 0; background: var(--text); color: var(--on-ink); border-radius: 4px; padding: 12px; font-size: .95rem; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+.sh-foot .go small { font-weight: 400; opacity: .75; margin-left: 6px; font-size: .8rem; }
 .sh-foot .go:disabled { background: var(--line); color: var(--sub); cursor: default; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
@@ -176,47 +214,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 
 <dialog class="sheet" id="sheet" aria-labelledby="shTitle">
   <div class="sh-head"><h2 id="shTitle">条件</h2><button type="button" id="closeBtn">閉じる</button></div>
-  <div class="sh-body">
-    <section class="sec">
-      <h3>面接の回数<small>インターン参加までの面接。GD・面談は数えない</small></h3>
-      <div class="seg" id="seg_max_interviews"></div>
-    </section>
-    <section class="sec">
-      <h3>選考</h3>
-      <label class="sw"><span class="lb">能力検査（SPIなど）があっても表示<small>性格検査だけのものは、最初から表示しています</small></span><input type="checkbox" id="allow_ability_test"></label>
-      <label class="sw"><span class="lb">早期選考・本選考の優遇があるものだけ</span><input type="checkbox" id="require_early"></label>
-      <label class="sw"><span class="lb">選考の流れが分からないものも表示<small>募集ページに選考の記載がない、検査の種類が書いていない など</small></span><input type="checkbox" id="include_unknown"></label>
-    </section>
-    <section class="sec">
-      <h3>交通費・宿泊費</h3>
-      <label class="sw"><span class="lb">交通費が全額出るものだけ</span><input type="checkbox" id="transport_full_only"></label>
-      <label class="sw"><span class="lb">「遠方の人だけ支給」を除く</span><input type="checkbox" id="exclude_remote_only"></label>
-      <label class="sw"><span class="lb">宿泊費も出るものだけ</span><input type="checkbox" id="require_lodging"></label>
-    </section>
-    <section class="sec">
-      <h3>開催地<small>選んだどこかで開催するもの</small></h3>
-      <div id="prefectures"></div>
-    </section>
-    <section class="sec">
-      <h3>業界</h3>
-      <div class="opts" id="industries"></div>
-    </section>
-    <section class="sec">
-      <h3>締切まで</h3>
-      <div class="seg" id="seg_min_days_left"></div>
-    </section>
-    <section class="sec">
-      <h3>クチコミ評価<small>ONE CAREER の会社の評価</small></h3>
-      <div class="seg" id="seg_min_review"></div>
-    </section>
-    <section class="sec">
-      <h3>タイトルの言葉<small>スペースで区切ると複数</small></h3>
-      <div class="kw">
-        <label>含む<input type="text" id="keywords_in" placeholder="例: 1day 理系" enterkeyhint="done"></label>
-        <label>除く<input type="text" id="keywords_out" placeholder="例: 営業" enterkeyhint="done"></label>
-      </div>
-    </section>
-  </div>
+  <div class="sh-body" id="shBody"></div>
   <div class="sh-foot">
     <button type="button" class="reset" id="reset">最初に戻す</button>
     <button type="button" class="go" id="goBtn"></button>
@@ -230,13 +228,15 @@ const DEFAULTS = {
   max_interviews: 2, allow_ability_test: false, include_unknown: false,
   transport_full_only: false, exclude_remote_only: false, require_lodging: false, require_early: false,
   prefectures: [], industries: [], min_days_left: 0, min_review: 0, keywords_in: [], keywords_out: [],
+  min_transport: 0, exclude_steps: [],
 };
 const STORE_KEY = "oc-intern-filters-v1";
 let DATA = null, F = load(), shown = PAGE;
 
+function fresh() { return JSON.parse(JSON.stringify(DEFAULTS)); }
 function load() {
-  try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
-  catch (e) { return Object.assign({}, DEFAULTS); }
+  try { return Object.assign(fresh(), JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
+  catch (e) { return fresh(); }
 }
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(F)); } catch (e) {} }
 
@@ -266,6 +266,8 @@ function evaluate(r, now) {
   const { dl, closed } = currentDeadline(r, now.toISOString());
   r._dl = dl;
   if (closed || !decide(r.a)) return false;
+  if (F.min_transport && !(r.a.full || (r.a.amt || 0) >= F.min_transport)) return false;
+  if (F.exclude_steps.length && r.a.st.some(s => F.exclude_steps.includes(s))) return false;
   if (F.prefectures.length && !r.pl.some(p => F.prefectures.includes(p))) return false;
   if (F.industries.length && !F.industries.includes(r.ind)) return false;
   if (F.min_days_left && dl && (new Date(dl) - now) / 864e5 < F.min_days_left) return false;
@@ -287,14 +289,16 @@ const REGIONS = [
   ["中国・四国", ["鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県"]],
   ["九州・沖縄", ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"]],
 ];
-const SEGS = {
-  max_interviews: [[0, "0回"], [1, "1回まで"], [2, "2回まで"], [3, "3回まで"], [99, "問わない"]],
-  min_days_left: [[0, "指定なし"], [3, "3日以上"], [7, "7日以上"], [14, "14日以上"]],
-  min_review: [[0, "指定なし"], [3, "3.0以上"], [3.5, "3.5以上"], [4, "4.0以上"]],
-};
-const FLAGS = {
-  allow_ability_test: "能力検査も表示", require_early: "早期選考の優遇あり", include_unknown: "選考不明も表示",
-  transport_full_only: "交通費は全額", exclude_remote_only: "遠方者のみ支給を除く", require_lodging: "宿泊費あり",
+// 能力検査は ability_test で、それ以外は Python 側で選考の流れから拾った st で見る
+const STEPS = [["ES・書類", "ES・書類"], ["能力検査", "能力検査（SPIなど）"], ["動画・AI面接", "動画・AI面接"], ["GD", "GD"], ["課題", "課題・作品"], ["面談", "面談"]];
+const FULL = -1;  // 交通費のバーの右端＝全額だけ
+const yen = v => v === FULL ? "全額" : v >= 10000 ? `${v / 10000}万円` : `${v.toLocaleString()}円`;
+const SLIDERS = {
+  transport: { stops: [0, 1000, 2000, 3000, 5000, 10000, 20000, 30000, 50000, FULL],
+    label: v => v === 0 ? "金額は問わない" : v === FULL ? "全額支給だけ" : `${yen(v)}以上`, tick: v => v === 0 ? "問わない" : yen(v) },
+  interviews: { stops: [0, 1, 2, 3, 99], label: v => v === 99 ? "回数は問わない" : v === 0 ? "面接なし" : `面接${v}回まで`, tick: v => v === 99 ? "問わない" : `${v}回` },
+  days: { stops: [0, 1, 3, 5, 7, 10, 14, 21, 30], label: v => v === 0 ? "指定なし" : `締切まで${v}日以上`, tick: v => v === 0 ? "なし" : `${v}日` },
+  review: { stops: [0, 3, 3.5, 4, 4.5], label: v => v === 0 ? "指定なし" : `評価${v.toFixed(1)}以上`, tick: v => v === 0 ? "なし" : v.toFixed(1) },
 };
 const short = p => p === "北海道" ? p : p.replace(/[都府県]$/, "");
 
@@ -317,19 +321,19 @@ function item(r, now) {
   const a = r.a;
   const pl = r.pl.map(short);
   const place = pl.length > 3 ? `${pl.slice(0, 3).join("・")} ほか${pl.length - 3}` : pl.join("・");
-  const flow = a.flow ? a.flow : interviews(a);
+  const lodg = a.lodg === "支給" ? ["あり", ""] : a.lodg === "なし" ? ["なし", "no"] : ["記載なし", "no"];
+  const info = [place, r.ind, r.rev ? `評価 ${r.rev.toFixed(1)}` : "", a.early ? (a.ed && a.ed.includes("早期") ? a.ed : `早期選考 ${a.ed || "あり"}`) : ""].filter(Boolean);
   return `<li><a class="item" href="https://www.onecareer.jp/events/internship/${r.id}" target="_blank" rel="noopener">
     ${whenCell(r._dl, now)}
     <div>
-      <div class="co"><strong>${esc(r.c)}</strong>${r.new ? '<span class="new">新着</span>' : ""}<span class="ind">${esc(r.ind)}${r.rev ? ` ・ 評価 ${r.rev.toFixed(1)}` : ""}</span></div>
+      <div class="co"><strong>${esc(r.c)}</strong>${r.new ? '<span class="new">新着</span>' : ""}</div>
       <div class="ti">${esc(r.t)}</div>
-      <dl class="facts">
+      <dl class="key">
         <dt>交通費</dt><dd>${esc(a.td || "支給あり")}</dd>
-        <dt>選考</dt><dd>${esc(flow)}</dd>
-        ${place ? `<dt>開催地</dt><dd>${esc(place)}</dd>` : ""}
-        ${a.lodg === "支給" ? `<dt>宿泊費</dt><dd>あり</dd>` : ""}
-        ${a.early ? `<dt>早期選考</dt><dd>${esc(a.ed || "あり")}</dd>` : ""}
+        <dt>宿泊費</dt><dd class="${lodg[1]}">${lodg[0]}</dd>
+        <dt>選考</dt><dd>${esc(a.flow || interviews(a))}</dd>
       </dl>
+      <p class="sub-info">${info.map(s => `<span>${esc(s)}</span>`).join("")}</p>
     </div>
   </a></li>`;
 }
@@ -338,40 +342,46 @@ function sortHits(rows) {
   return rows.sort((x, y) => (x._dl === null) - (y._dl === null) || String(x._dl).localeCompare(String(y._dl)));
 }
 
-// 1つの条件だけ外したときに残る件数（選択肢の横に出す数字）
-function countWithout(key, now) {
+// 条件 f で数える（evaluate は F を見るので、一時的に入れ替える）
+function hitsWith(f, now) {
   const saved = F;
-  F = Object.assign({}, saved, { [key]: [] });
-  const rows = DATA.rows.filter(r => evaluate(r, now));
-  F = saved;
-  return rows;
+  F = f;
+  try { return DATA.rows.filter(r => evaluate(r, now)); } finally { F = saved; }
 }
 
-function changes() {
+function changes(f) {
   const out = [];
-  if (F.max_interviews !== DEFAULTS.max_interviews)
-    out.push(["max_interviews", F.max_interviews === 99 ? "面接回数は問わない" : F.max_interviews === 0 ? "面接なし" : `面接${F.max_interviews}回まで`]);
-  for (const k in FLAGS) if (F[k]) out.push([k, FLAGS[k]]);
-  F.prefectures.forEach(p => out.push(["prefectures:" + p, short(p)]));
-  F.industries.forEach(p => out.push(["industries:" + p, p]));
-  if (F.min_days_left) out.push(["min_days_left", `締切まで${F.min_days_left}日以上`]);
-  if (F.min_review) out.push(["min_review", `評価${F.min_review.toFixed(1)}以上`]);
-  F.keywords_in.forEach(k => out.push(["keywords_in:" + k, `「${k}」を含む`]));
-  F.keywords_out.forEach(k => out.push(["keywords_out:" + k, `「${k}」を除く`]));
+  if (f.transport_full_only) out.push(["transport", "交通費は全額だけ"]);
+  else if (f.min_transport) out.push(["transport", `交通費${yen(f.min_transport)}以上`]);
+  if (f.exclude_remote_only) out.push(["exclude_remote_only", "遠方者のみ支給を除く"]);
+  if (f.require_lodging) out.push(["require_lodging", "宿泊費あり"]);
+  if (f.max_interviews !== DEFAULTS.max_interviews)
+    out.push(["max_interviews", f.max_interviews === 99 ? "面接回数は問わない" : f.max_interviews === 0 ? "面接なし" : `面接${f.max_interviews}回まで`]);
+  if (f.allow_ability_test) out.push(["allow_ability_test", "能力検査も可"]);
+  f.exclude_steps.forEach(s => out.push(["exclude_steps:" + s, `${s}なし`]));
+  if (f.require_early) out.push(["require_early", "早期選考の優遇あり"]);
+  if (f.include_unknown) out.push(["include_unknown", "選考不明も表示"]);
+  if (f.min_days_left) out.push(["min_days_left", `締切まで${f.min_days_left}日以上`]);
+  f.prefectures.forEach(p => out.push(["prefectures:" + p, short(p)]));
+  f.industries.forEach(p => out.push(["industries:" + p, p]));
+  if (f.min_review) out.push(["min_review", `評価${f.min_review.toFixed(1)}以上`]);
+  f.keywords_in.forEach(k => out.push(["keywords_in:" + k, `「${k}」を含む`]));
+  f.keywords_out.forEach(k => out.push(["keywords_out:" + k, `「${k}」を除く`]));
   return out;
 }
 
+// 一覧の上の × は、その場で外して検索し直す
 function removeChange(id) {
   const [k, v] = id.split(/:(.*)/s);
   if (v !== undefined) F[k] = F[k].filter(x => x !== v);
+  else if (k === "transport") { F.min_transport = 0; F.transport_full_only = false; }
   else F[k] = DEFAULTS[k];
-  syncInputs();
-  changed();
+  applied();
 }
 
 function render() {
   const now = new Date();
-  const hit = sortHits(DATA.rows.filter(r => evaluate(r, now)));
+  const hit = sortHits(hitsWith(F, now));
   const newN = hit.filter(r => r.new).length;
   $("count").innerHTML = `<b>${hit.length}</b>件<small>${newN ? `新着${newN}件・` : ""}締切が近い順</small>`;
   $("list").innerHTML = hit.slice(0, shown).map(r => item(r, now)).join("");
@@ -379,127 +389,217 @@ function render() {
   $("more").hidden = shown >= hit.length;
   $("more").textContent = `次の${Math.min(PAGE, hit.length - shown)}件（残り${Math.max(0, hit.length - shown)}件）`;
 
-  const ch = changes();
+  const ch = changes(F);
   $("nChanged").hidden = !ch.length;
   $("nChanged").textContent = ch.length;
   $("cond").innerHTML = ch.length
     ? ch.map(([id, label]) => `<button type="button" class="x" data-rm="${esc(id)}" aria-label="${esc(label)} を外す">${esc(label)}<span aria-hidden="true">×</span></button>`).join("")
       + `<button type="button" class="clear" id="clearAll">すべて外す</button>`
     : `交通費が出る・対面あり・面接2回まで・能力検査なし（最初の条件）`;
-
-  $("goBtn").textContent = `${hit.length}件を見る`;
-  $("goBtn").disabled = !hit.length;
-  if ($("sheet").open) renderFacets(now);
 }
 
+// ===== 条件の画面（D＝下書き。「この条件で検索」を押すまで一覧には反映しない） =====
+let D = null, U = null;
+
+function openSheet() {
+  D = JSON.parse(JSON.stringify(F));
+  U = {   // カードが開いているか（条件あり／絞る）
+    transport: !!(D.min_transport || D.transport_full_only || D.exclude_remote_only),
+    words: !!(D.keywords_in.length || D.keywords_out.length),
+    place: !!D.prefectures.length, industry: !!D.industries.length, review: !!D.min_review,
+  };
+  drawSheet();
+  document.body.classList.add("locked");
+  $("sheet").showModal();
+  $("shBody").scrollTop = 0;
+}
+function closeSheet() { $("sheet").close(); }
+
+function sliderIdx(key, v) { const s = SLIDERS[key].stops, i = s.indexOf(v); return i < 0 ? 0 : i; }
+function slider(key, value, note) {
+  const S = SLIDERS[key], i = sliderIdx(key, value), max = S.stops.length - 1;
+  const ticks = [0, Math.floor(max / 2), max].map(j => `<span style="--t:${j / max}">${S.tick(S.stops[j])}</span>`).join("");
+  return `<div class="slider"><div class="now" id="now_${key}">${S.label(value)}${note ? `<small>${note}</small>` : ""}</div>
+    <input type="range" min="0" max="${max}" step="1" value="${i}" data-slider="${key}" style="--p:${i / max * 100}%" aria-label="${S.label(value)}">
+    <div class="ticks">${ticks}</div></div>`;
+}
+function seg(name, on) {
+  return `<div class="seg" role="group"><button type="button" data-seg="${name}" data-v="0" aria-pressed="${!on}">条件なし</button><button type="button" data-seg="${name}" data-v="1" aria-pressed="${on}">条件あり</button></div>`;
+}
+function layer(name, title, on, body, val) {
+  return `<section class="card"><label class="c-head"><h3>${title}</h3><span style="display:flex;gap:10px;align-items:center"><span class="val">${on ? val : ""}</span><input type="checkbox" data-layer="${name}" ${on ? "checked" : ""} aria-label="${title}"></span></label>
+    <div class="c-body" ${on ? "" : "hidden"}>${on ? body() : ""}</div></section>`;
+}
 function optBtn(field, name, label, n) {
-  const on = F[field].includes(name);
+  const on = D[field].includes(name);
   return `<button type="button" class="opt${n ? "" : " zero"}" aria-pressed="${on}" data-f="${field}" data-v="${esc(name)}">${esc(label)}<i>${n}</i></button>`;
 }
 
-function renderFacets(now) {
-  const prefRows = countWithout("prefectures", now), pc = {};
-  prefRows.forEach(r => r.pl.forEach(p => { pc[p] = (pc[p] || 0) + 1; }));
-  const seen = new Set(DATA.rows.flatMap(r => r.pl));
-  $("prefectures").innerHTML = REGIONS.map(([name, prefs]) => {
-    const list = prefs.filter(p => seen.has(p) || F.prefectures.includes(p));
-    if (!list.length) return "";
-    const allOn = list.every(p => F.prefectures.includes(p));
-    return `<div class="region"><div class="rh"><span>${name}</span><button type="button" data-region="${name}">${allOn ? "まとめて外す" : "まとめて選ぶ"}</button></div>
-      <div class="opts">${list.map(p => optBtn("prefectures", p, short(p), pc[p] || 0)).join("")}</div></div>`;
-  }).join("");
+function drawSheet() {
+  const now = new Date();
+  const amtUnknown = DATA.rows.filter(r => !r.a.full && !r.a.amt).length;
+  const tVal = D.transport_full_only ? FULL : D.min_transport;
+  const cards = [];
 
-  const indRows = countWithout("industries", now), ic = {};
-  indRows.forEach(r => { ic[r.ind] = (ic[r.ind] || 0) + 1; });
-  const inds = [...new Set(DATA.rows.map(r => r.ind).filter(Boolean))];
-  const total = {};
-  DATA.rows.forEach(r => { total[r.ind] = (total[r.ind] || 0) + 1; });
-  inds.sort((a, b) => total[b] - total[a]);
-  $("industries").innerHTML = inds.map(n => optBtn("industries", n, n, ic[n] || 0)).join("");
+  cards.push(layer("words", "ワードで絞る", U.words, () => `<div class="kw">
+      <label>含む<input type="text" data-kw="keywords_in" value="${esc(D.keywords_in.join(" "))}" placeholder="例: 1day 理系" enterkeyhint="done"></label>
+      <label>除く<input type="text" data-kw="keywords_out" value="${esc(D.keywords_out.join(" "))}" placeholder="例: 営業" enterkeyhint="done"></label>
+    </div><p class="hint">募集のタイトルで探します。スペースで区切ると複数の言葉で探せます。</p>`, ""));
 
-  for (const k in SEGS) $("seg_" + k).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.v) === F[k]));
+  cards.push(`<section class="card main"><div class="c-head"><h3>交通費</h3>${seg("transport", U.transport)}</div>
+    <div class="c-body" ${U.transport ? "" : "hidden"}>${U.transport ? `
+      ${slider("transport", tVal)}
+      <p class="hint">上限・一律の額で比べます。全額支給は常に含みます。額が書いていない募集（「規定額」など${amtUnknown}件）は、金額を決めると外れます。</p>
+      <label class="sw"><span>「遠方の人だけ支給」を除く</span><input type="checkbox" data-flag="exclude_remote_only" ${D.exclude_remote_only ? "checked" : ""}></label>` : ""}
+    </div></section>`);
+
+  cards.push(`<section class="card main"><div class="c-head"><h3>宿泊費</h3>${seg("lodging", D.require_lodging)}</div>
+    <div class="c-body" ${D.require_lodging ? "" : "hidden"}><p class="hint" style="margin:0">宿泊費（宿の手配を含む）が出るものだけにします。金額が書いてある募集は無かったため、金額では絞れません。</p></div></section>`);
+
+  cards.push(`<section class="card main"><div class="c-head"><h3>選考フロー</h3></div><div class="c-body">
+    ${slider("interviews", D.max_interviews, "GD・面談は数えない")}
+    <div class="groupname">受けてもいい選考（外すと、その選考があるものを除く）</div>
+    <div class="checks">${STEPS.map(([k, l]) => {
+      const on = k === "能力検査" ? D.allow_ability_test : !D.exclude_steps.includes(k);
+      return `<button type="button" class="ck" data-step="${k}" aria-pressed="${on}">${l}</button>`;
+    }).join("")}</div>
+    <label class="sw"><span>早期選考・本選考の優遇があるものだけ</span><input type="checkbox" data-flag="require_early" ${D.require_early ? "checked" : ""}></label>
+    <label class="sw"><span>選考の流れが分からないものも表示</span><input type="checkbox" data-flag="include_unknown" ${D.include_unknown ? "checked" : ""}></label>
+  </div></section>`);
+
+  cards.push(`<section class="card main"><div class="c-head"><h3>締切</h3></div><div class="c-body">${slider("days", D.min_days_left)}</div></section>`);
+
+  cards.push(layer("place", "開催地を絞る", U.place, () => {
+    const pc = {};
+    hitsWith(Object.assign({}, D, { prefectures: [] }), now).forEach(r => r.pl.forEach(p => { pc[p] = (pc[p] || 0) + 1; }));
+    const seen = new Set(DATA.rows.flatMap(r => r.pl));
+    return REGIONS.map(([name, prefs]) => {
+      const list = prefs.filter(p => seen.has(p) || D.prefectures.includes(p));
+      if (!list.length) return "";
+      const allOn = list.every(p => D.prefectures.includes(p));
+      return `<div class="region"><div class="rh"><span>${name}</span><button type="button" data-region="${name}">${allOn ? "まとめて外す" : "まとめて選ぶ"}</button></div>
+        <div class="opts">${list.map(p => optBtn("prefectures", p, short(p), pc[p] || 0)).join("")}</div></div>`;
+    }).join("") + `<p class="hint">数字は、それを選んだときに出てくる件数です。</p>`;
+  }, D.prefectures.map(short).join("・")));
+
+  cards.push(layer("industry", "業界を絞る", U.industry, () => {
+    const ic = {}, total = {};
+    hitsWith(Object.assign({}, D, { industries: [] }), now).forEach(r => { ic[r.ind] = (ic[r.ind] || 0) + 1; });
+    DATA.rows.forEach(r => { total[r.ind] = (total[r.ind] || 0) + 1; });
+    const inds = Object.keys(total).filter(Boolean).sort((a, b) => total[b] - total[a]);
+    return `<div class="opts">${inds.map(n => optBtn("industries", n, n, ic[n] || 0)).join("")}</div>`;
+  }, D.industries.length ? `${D.industries.length}業界` : ""));
+
+  cards.push(layer("review", "クチコミ評価で絞る", U.review, () => slider("review", D.min_review) + `<p class="hint">ONE CAREER に載っている会社の評価です。</p>`, ""));
+
+  const y = $("shBody").scrollTop;
+  $("shBody").innerHTML = cards.join("");
+  $("shBody").scrollTop = y;
+  updateGo();
 }
 
-function buildSegs() {
-  for (const k in SEGS) {
-    const opts = SEGS[k].slice();
-    if (!opts.some(([v]) => v === F[k])) opts.push([F[k], k === "min_review" ? `${F[k]}以上` : `${F[k]}日以上`]);
-    $("seg_" + k).innerHTML = opts.map(([v, l]) => `<button type="button" data-k="${k}" data-v="${v}" aria-pressed="${v === F[k]}">${l}</button>`).join("");
-  }
+function updateGo() {
+  const n = hitsWith(D, new Date()).length;
+  $("goBtn").innerHTML = `この条件で検索<small>${n}件</small>`;
+  $("goBtn").disabled = !n;
 }
 
-function syncInputs() {
-  Object.keys(FLAGS).forEach(k => { $(k).checked = !!F[k]; });
-  ["keywords_in", "keywords_out"].forEach(k => { $(k).value = F[k].join(" "); });
-  buildSegs();
-}
-
-function bind() {
-  Object.keys(FLAGS).forEach(k => { $(k).onchange = () => { F[k] = $(k).checked; changed(); }; });
-  ["keywords_in", "keywords_out"].forEach(k => {
-    $(k).oninput = () => { F[k] = $(k).value.replace(/[、,，　]/g, " ").split(/\s+/).filter(Boolean); changed(); };
-    $(k).onkeydown = e => { if (e.key === "Enter") e.target.blur(); };
-  });
-  $("sheet").addEventListener("click", e => {
-    const seg = e.target.closest("[data-k]");
-    if (seg) { F[seg.dataset.k] = Number(seg.dataset.v); changed(); return; }
-    const opt = e.target.closest(".opt");
+function sheetEvents() {
+  const body = $("shBody");
+  body.addEventListener("click", e => {
+    const t = e.target;
+    const sg = t.closest("[data-seg]");
+    if (sg) {
+      const on = sg.dataset.v === "1";
+      if (sg.dataset.seg === "transport") { U.transport = on; if (!on) { D.min_transport = 0; D.transport_full_only = false; D.exclude_remote_only = false; } }
+      else D.require_lodging = on;
+      return drawSheet();
+    }
+    const st = t.closest("[data-step]");
+    if (st) {
+      const k = st.dataset.step;
+      if (k === "能力検査") D.allow_ability_test = !D.allow_ability_test;
+      else D.exclude_steps = D.exclude_steps.includes(k) ? D.exclude_steps.filter(x => x !== k) : D.exclude_steps.concat(k);
+      return drawSheet();
+    }
+    const opt = t.closest(".opt");
     if (opt) {
       const f = opt.dataset.f, v = opt.dataset.v;
-      F[f] = F[f].includes(v) ? F[f].filter(x => x !== v) : F[f].concat(v);
-      changed(); return;
+      D[f] = D[f].includes(v) ? D[f].filter(x => x !== v) : D[f].concat(v);
+      return drawSheet();
     }
-    const reg = e.target.closest("[data-region]");
+    const reg = t.closest("[data-region]");
     if (reg) {
       const seen = new Set(DATA.rows.flatMap(r => r.pl));
-      const list = REGIONS.find(([n]) => n === reg.dataset.region)[1].filter(p => seen.has(p) || F.prefectures.includes(p));
-      const allOn = list.every(p => F.prefectures.includes(p));
-      F.prefectures = allOn ? F.prefectures.filter(p => !list.includes(p)) : [...new Set(F.prefectures.concat(list))];
-      changed(); return;
+      const list = REGIONS.find(([n]) => n === reg.dataset.region)[1].filter(p => seen.has(p) || D.prefectures.includes(p));
+      const allOn = list.every(p => D.prefectures.includes(p));
+      D.prefectures = allOn ? D.prefectures.filter(p => !list.includes(p)) : [...new Set(D.prefectures.concat(list))];
+      return drawSheet();
     }
-    if (e.target === $("sheet")) closeSheet();  // 外側（暗いところ）を押したら閉じる
   });
+  body.addEventListener("change", e => {
+    const t = e.target;
+    if (t.dataset.layer) {
+      const k = t.dataset.layer;
+      U[k] = t.checked;
+      if (!t.checked) {   // 閉じたら、その絞り込みは外す
+        if (k === "words") { D.keywords_in = []; D.keywords_out = []; }
+        if (k === "place") D.prefectures = [];
+        if (k === "industry") D.industries = [];
+        if (k === "review") D.min_review = 0;
+      }
+      return drawSheet();
+    }
+    if (t.dataset.flag) { D[t.dataset.flag] = t.checked; return updateGo(); }
+    if (t.dataset.slider) return drawSheet();   // 指を離したら、件数の入った部分を描き直す
+  });
+  body.addEventListener("input", e => {
+    const t = e.target;
+    if (t.dataset.slider) {
+      const key = t.dataset.slider, S = SLIDERS[key], v = S.stops[Number(t.value)];
+      if (key === "transport") { D.transport_full_only = v === FULL; D.min_transport = v === FULL ? 0 : v; }
+      if (key === "interviews") D.max_interviews = v;
+      if (key === "days") D.min_days_left = v;
+      if (key === "review") D.min_review = v;
+      t.style.setProperty("--p", `${Number(t.value) / (S.stops.length - 1) * 100}%`);
+      const now = $("now_" + key);
+      now.firstChild.textContent = S.label(v);
+      t.setAttribute("aria-label", S.label(v));
+      return updateGo();
+    }
+    if (t.dataset.kw) { D[t.dataset.kw] = t.value.replace(/[、,，　]/g, " ").split(/\s+/).filter(Boolean); updateGo(); }
+  });
+  body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset.kw) e.target.blur(); });
+  $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });  // 外側（暗いところ）を押したら閉じる
+  $("sheet").addEventListener("close", () => document.body.classList.remove("locked"));
+  $("closeBtn").onclick = closeSheet;
+  $("reset").onclick = () => { D = fresh(); U = { transport: false, words: false, place: false, industry: false, review: false }; drawSheet(); };
+  $("goBtn").onclick = () => { F = D; applied(); closeSheet(); window.scrollTo({ top: 0 }); };
+}
+
+function applied() { shown = PAGE; save(); render(); }
+
+function bind() {
+  sheetEvents();
   document.addEventListener("click", e => {
     const rm = e.target.closest("[data-rm]");
     if (rm) { removeChange(rm.dataset.rm); return; }
-    if (e.target.closest("#clearAll")) { resetAll(); return; }
+    if (e.target.closest("#clearAll")) { F = fresh(); applied(); return; }
     if (e.target.closest("[data-open]")) openSheet();
   });
   $("openBtn").onclick = openSheet;
-  $("closeBtn").onclick = closeSheet;
-  $("goBtn").onclick = closeSheet;
-  $("reset").onclick = resetAll;
-  $("sheet").addEventListener("close", () => document.body.classList.remove("locked"));
   $("more").onclick = () => { shown += PAGE; render(); };
 }
-
-function openSheet() {
-  renderFacets(new Date());
-  document.body.classList.add("locked");
-  $("sheet").showModal();
-  $("sheet").querySelector(".sh-body").scrollTop = 0;
-}
-function closeSheet() {
-  $("sheet").close();
-  window.scrollTo({ top: Math.min(window.scrollY, document.querySelector(".bar").offsetTop) });
-}
-function resetAll() {
-  F = Object.assign({}, DEFAULTS, { prefectures: [], industries: [], keywords_in: [], keywords_out: [] });
-  syncInputs();
-  changed();
-}
-
-function changed() { shown = PAGE; save(); buildSegs(); render(); }
 
 fetch("data.json", { cache: "no-cache" })
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     DATA = d;
+    DATA.rows.forEach(r => { r.a.st = r.a.st || []; });
     const u = jst(d.updated_at);
     $("eyebrow").textContent = `${d.graduate} / ONE CAREER 掲載の募集中インターン`;
     $("meta").textContent = `${u.getMonth() + 1}月${u.getDate()}日 ${String(u.getHours()).padStart(2, "0")}:${String(u.getMinutes()).padStart(2, "0")} 更新・募集中 ${d.listed.toLocaleString()}件から選別・毎週更新`;
     if (d.unjudged) { $("notice").hidden = false; $("notice").textContent = `この更新では ${d.unjudged}件をまだ読み取れていません。次の更新で増えることがあります。`; }
-    syncInputs();
     bind();
     render();
   })
