@@ -77,8 +77,6 @@ a { color: var(--link); }
 .cas-head .ind { display: block; font-size: .72rem; color: var(--sub); margin-top: 1px; }
 .cas-title { margin: 6px 0 0; font-size: .8rem; color: var(--sub); line-height: 1.6;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0 0; }
-.tag { font-size: .68rem; color: var(--tag); background: var(--brand-soft); border-radius: 999px; padding: 1px 10px; line-height: 1.8; }
 .spec { width: 100%; margin: 14px 0 0; border-collapse: separate; border-spacing: 0; font-size: .84rem; background: var(--bg2); border-radius: 12px; overflow: hidden; }
 .spec th, .spec td { padding: 8px 12px; text-align: left; vertical-align: top; border-top: 1px solid var(--bg); }
 .spec tr:first-child th, .spec tr:first-child td { border-top: 0; }
@@ -123,6 +121,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .3); }
 .c-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; }
 .c-head h3 { margin: 0; font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .card.main .c-head h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+.c-head .fixed { font-size: .82rem; font-weight: 700; color: var(--tag); background: var(--brand-soft); border-radius: 999px; padding: 4px 16px; }
 .c-head .val { font-size: .74rem; color: var(--tag); font-weight: 700; text-align: right; }
 .c-body { padding: 2px 16px 16px; }
 .c-body[hidden] { display: none; }
@@ -249,7 +248,7 @@ const DEFAULTS = {
   max_interviews: 2, allow_ability_test: false, include_unknown: false,
   transport_full_only: false, exclude_remote_only: false, require_lodging: false, require_early: false,
   prefectures: [], industries: [], min_days_left: 0, min_review: 0, keywords_in: [], keywords_out: [],
-  min_transport: 0, exclude_steps: [],
+  min_transport: 0, exclude_steps: [], exclude_lodging: false,
 };
 const STORE_KEY = "oc-intern-filters-v1";
 let DATA = null, F = load(), shown = PAGE;
@@ -288,6 +287,7 @@ function evaluate(r, now) {
   r._dl = dl;
   if (closed || !decide(r.a)) return false;
   if (F.min_transport && !(r.a.full || (r.a.amt || 0) >= F.min_transport)) return false;
+  if (F.exclude_lodging && r.a.lodg === "支給") return false;
   if (F.exclude_steps.length && r.a.st.some(s => F.exclude_steps.includes(s))) return false;
   if (F.prefectures.length && !r.pl.some(p => F.prefectures.includes(p))) return false;
   if (F.industries.length && !F.industries.includes(r.ind)) return false;
@@ -341,25 +341,19 @@ function interviews(a) {
 function item(r, now) {
   const a = r.a, url = `https://www.onecareer.jp/events/internship/${r.id}`;
   const pl = r.pl.map(short);
-  const place = pl.length > 4 ? `${pl.slice(0, 4).join("・")} ほか${pl.length - 4}` : pl.join("・");
+  const place = pl.length ? pl.join("・") : "";
   const lodg = a.lodg === "支給" ? `<td class="strong">あり</td>` : `<td class="no">${a.lodg === "なし" ? "なし" : "記載なし"}</td>`;
-  const tags = [
-    a.full && "交通費全額", a.lodg === "支給" && "宿泊費あり",
-    (a.nosel || a.iv === 0) && "面接なし", a.abil === "なし" && "適性検査なし",
-    a.early && "早期選考あり", r.nodl && !r._dl && "締切なし",
-  ].filter(Boolean);
   const early = a.early ? (a.ed && a.ed.includes("早期") ? a.ed : `早期選考 ${a.ed || "あり"}`) : "";
   return `<li class="cas">
     <div class="cas-head"><a class="co" href="${url}" target="_blank" rel="noopener">${esc(r.c)}</a>${r.new ? '<span class="new">NEW</span>' : ""}
       <span class="ind">${esc(r.ind)}${r.rev ? `　クチコミ評価 ${r.rev.toFixed(1)}` : ""}</span></div>
     <div class="cas-title">${esc(r.t)}</div>
-    ${tags.length ? `<div class="tags">${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>` : ""}
     <table class="spec">
       <tr><th>交通費</th><td class="money">${esc(a.td || "支給あり")}</td></tr>
       <tr><th>宿泊費</th>${lodg}</tr>
       <tr><th>選考</th><td class="strong">${esc(a.flow || interviews(a))}</td></tr>
       <tr><th>締切</th><td>${deadline(r._dl, now)}</td></tr>
-      ${place ? `<tr><th>開催地</th><td>${esc(place)}</td></tr>` : ""}
+      <tr><th>開催地</th>${place ? `<td>${esc(place)}</td>` : `<td class="no">記載なし</td>`}</tr>
     </table>
     <div class="cas-foot"><span class="meta">${esc(early)}</span><a class="btn-cta" href="${url}" target="_blank" rel="noopener">詳細を見る</a></div>
   </li>`;
@@ -382,6 +376,7 @@ function changes(f) {
   else if (f.min_transport) out.push(["transport", `交通費${yen(f.min_transport)}以上`]);
   if (f.exclude_remote_only) out.push(["exclude_remote_only", "遠方者のみ支給を除く"]);
   if (f.require_lodging) out.push(["require_lodging", "宿泊費あり"]);
+  if (f.exclude_lodging) out.push(["exclude_lodging", "宿泊費なし"]);
   if (f.max_interviews !== DEFAULTS.max_interviews)
     out.push(["max_interviews", f.max_interviews === 99 ? "面接回数は問わない" : f.max_interviews === 0 ? "面接なし" : `面接${f.max_interviews}回まで`]);
   if (f.allow_ability_test) out.push(["allow_ability_test", "能力検査も可"]);
@@ -431,7 +426,6 @@ let D = null, U = null;
 function openSheet() {
   D = JSON.parse(JSON.stringify(F));
   U = {   // カードが開いているか（条件あり／絞る）
-    transport: !!(D.min_transport || D.transport_full_only || D.exclude_remote_only),
     words: !!(D.keywords_in.length || D.keywords_out.length),
     place: !!D.prefectures.length, industry: !!D.industries.length, review: !!D.min_review,
   };
@@ -450,8 +444,8 @@ function slider(key, value, note) {
     <input type="range" min="0" max="${max}" step="1" value="${i}" data-slider="${key}" style="--p:${i / max * 100}%" aria-label="${S.label(value)}">
     <div class="ticks">${ticks}</div></div>`;
 }
-function seg(name, on) {
-  return `<div class="seg" role="group"><button type="button" data-seg="${name}" data-v="0" aria-pressed="${!on}">条件なし</button><button type="button" data-seg="${name}" data-v="1" aria-pressed="${on}">条件あり</button></div>`;
+function seg(name, value, options) {
+  return `<div class="seg" role="group">${options.map(([v, l]) => `<button type="button" data-seg="${name}" data-v="${v}" aria-pressed="${v === value}">${l}</button>`).join("")}</div>`;
 }
 function layer(name, title, on, body, val) {
   return `<section class="card"><label class="c-head"><h3>${title}</h3><span style="display:flex;gap:10px;align-items:center"><span class="val">${on ? val : ""}</span><input type="checkbox" data-layer="${name}" ${on ? "checked" : ""} aria-label="${title}"></span></label>
@@ -473,15 +467,17 @@ function drawSheet() {
       <label>除く<input type="text" data-kw="keywords_out" value="${esc(D.keywords_out.join(" "))}" placeholder="例: 営業" enterkeyhint="done"></label>
     </div><p class="hint">募集のタイトルで探します。スペースで区切ると複数の言葉で探せます。</p>`, ""));
 
-  cards.push(`<section class="card main"><div class="c-head"><h3>交通費</h3>${seg("transport", U.transport)}</div>
-    <div class="c-body" ${U.transport ? "" : "hidden"}>${U.transport ? `
+  cards.push(`<section class="card main"><div class="c-head"><h3>交通費の支給</h3><span class="fixed">あり</span></div>
+    <div class="c-body">${`
       ${slider("transport", tVal)}
       <p class="hint">上限・一律の額で比べます。全額支給は常に含みます。額が書いていない募集（「規定額」など${amtUnknown}件）は、金額を決めると外れます。</p>
-      <label class="sw"><span>「遠方の人だけ支給」を除く</span><input type="checkbox" data-flag="exclude_remote_only" ${D.exclude_remote_only ? "checked" : ""}></label>` : ""}
+      <label class="sw"><span>「遠方の人だけ支給」を除く</span><input type="checkbox" data-flag="exclude_remote_only" ${D.exclude_remote_only ? "checked" : ""}></label>`}
+      <p class="hint">このサイトは交通費が出るインターンだけを載せています。</p>
     </div></section>`);
 
-  cards.push(`<section class="card main"><div class="c-head"><h3>宿泊費</h3>${seg("lodging", D.require_lodging)}</div>
-    <div class="c-body" ${D.require_lodging ? "" : "hidden"}><p class="hint" style="margin:0">宿泊費（宿の手配を含む）が出るものだけにします。金額が書いてある募集は無かったため、金額では絞れません。</p></div></section>`);
+  const lodg = D.require_lodging ? "yes" : D.exclude_lodging ? "no" : "any";
+  cards.push(`<section class="card main"><div class="c-head"><h3>宿泊費の支給</h3>${seg("lodging", lodg, [["any", "問わない"], ["yes", "あり"], ["no", "なし"]])}</div>
+    ${lodg === "any" ? "" : `<div class="c-body"><p class="hint" style="margin:0">${lodg === "yes" ? "宿泊費（宿の手配を含む）が出るものだけ表示します。" : "宿泊費が出ないもの・書いていないものだけ表示します。"}金額が書いてある募集は無かったため、金額では絞れません。</p></div>`}</section>`);
 
   cards.push(`<section class="card main"><div class="c-head"><h3>選考フロー</h3></div><div class="c-body">
     ${slider("interviews", D.max_interviews, "GD・面談は数えない")}
@@ -499,10 +495,7 @@ function drawSheet() {
   cards.push(layer("place", "開催地を絞る", U.place, () => {
     const pc = {};
     hitsWith(Object.assign({}, D, { prefectures: [] }), now).forEach(r => r.pl.forEach(p => { pc[p] = (pc[p] || 0) + 1; }));
-    const seen = new Set(DATA.rows.flatMap(r => r.pl));
-    return REGIONS.map(([name, prefs]) => {
-      const list = prefs.filter(p => seen.has(p) || D.prefectures.includes(p));
-      if (!list.length) return "";
+    return REGIONS.map(([name, list]) => {
       const allOn = list.every(p => D.prefectures.includes(p));
       return `<div class="region"><div class="rh"><span>${name}</span><button type="button" data-region="${name}">${allOn ? "まとめて外す" : "まとめて選ぶ"}</button></div>
         <div class="opts">${list.map(p => optBtn("prefectures", p, short(p), pc[p] || 0)).join("")}</div></div>`;
@@ -537,9 +530,8 @@ function sheetEvents() {
     const t = e.target;
     const sg = t.closest("[data-seg]");
     if (sg) {
-      const on = sg.dataset.v === "1";
-      if (sg.dataset.seg === "transport") { U.transport = on; if (!on) { D.min_transport = 0; D.transport_full_only = false; D.exclude_remote_only = false; } }
-      else D.require_lodging = on;
+      D.require_lodging = sg.dataset.v === "yes";
+      D.exclude_lodging = sg.dataset.v === "no";
       return drawSheet();
     }
     const st = t.closest("[data-step]");
@@ -557,8 +549,7 @@ function sheetEvents() {
     }
     const reg = t.closest("[data-region]");
     if (reg) {
-      const seen = new Set(DATA.rows.flatMap(r => r.pl));
-      const list = REGIONS.find(([n]) => n === reg.dataset.region)[1].filter(p => seen.has(p) || D.prefectures.includes(p));
+      const list = REGIONS.find(([n]) => n === reg.dataset.region)[1];
       const allOn = list.every(p => D.prefectures.includes(p));
       D.prefectures = allOn ? D.prefectures.filter(p => !list.includes(p)) : [...new Set(D.prefectures.concat(list))];
       return drawSheet();
@@ -600,7 +591,7 @@ function sheetEvents() {
   $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });  // 外側（暗いところ）を押したら閉じる
   $("sheet").addEventListener("close", () => document.body.classList.remove("locked"));
   $("closeBtn").onclick = closeSheet;
-  $("reset").onclick = () => { D = fresh(); U = { transport: false, words: false, place: false, industry: false, review: false }; drawSheet(); };
+  $("reset").onclick = () => { D = fresh(); U = { words: false, place: false, industry: false, review: false }; drawSheet(); };
   $("goBtn").onclick = () => { F = D; applied(); closeSheet(); window.scrollTo({ top: 0 }); };
 }
 
