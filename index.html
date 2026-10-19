@@ -100,15 +100,12 @@ footer p { margin: 0 0 6px; }
 /* 条件の画面（スマホは下からせり上がる・PCは右側） */
 body.locked { overflow: hidden; }
 dialog.sheet { padding: 0; border: 0; margin: 0; background: var(--page); color: var(--text);
-  position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 92dvh; height: 92dvh;
-  border-radius: 8px 8px 0 0; display: none; flex-direction: column; overflow: hidden; }
+  position: fixed; inset: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%; height: 100dvh; max-height: 100dvh;
+  border-radius: 0; display: none; flex-direction: column; overflow: hidden; }
 dialog.sheet[open] { display: flex; animation: up .22s ease-out; }
 dialog.sheet::backdrop { background: rgba(0, 0, 0, .45); }
-@keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+@keyframes up { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { dialog.sheet[open] { animation: none; } }
-@media (min-width: 780px) {
-  dialog.sheet { inset: 0 0 0 auto; width: 460px; height: 100dvh; max-height: 100dvh; border-radius: 0; }
-}
 .sh-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--brand); color: var(--on-brand); border-bottom: 3px solid var(--brand-dark); }
 .sh-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
 .sh-head button { border: 1px solid rgba(255,255,255,.7); background: none; color: var(--on-brand); border-radius: 3px; font-size: .8rem; padding: 3px 10px; cursor: pointer; }
@@ -195,6 +192,11 @@ label.c-head { cursor: pointer; }
 .sh-foot .go small b { font-size: 1rem; margin: 0 1px; }
 .sh-foot .go:disabled { background: var(--line); border-color: var(--line); color: var(--sub); box-shadow: none; cursor: default; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--cta); outline-offset: 2px; }
+/* PCでも画面いっぱい。中身だけ読みやすい幅にそろえる */
+@media (min-width: 780px) {
+  .sh-head, .sh-foot { padding-left: calc(50% - 370px); padding-right: calc(50% - 370px); }
+  .sh-body { padding-left: calc(50% - 370px); padding-right: calc(50% - 370px); }
+}
 </style>
 </head>
 <body>
