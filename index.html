@@ -616,7 +616,7 @@ fetch("data.json", { cache: "no-cache" })
     DATA.rows.forEach(r => { r.a.st = r.a.st || []; });
     const u = jst(d.updated_at);
     $("eyebrow").textContent = `${d.graduate}・ONE CAREER 掲載の募集中インターンから選別`;
-    $("meta").textContent = `${u.getMonth() + 1}月${u.getDate()}日 ${String(u.getHours()).padStart(2, "0")}:${String(u.getMinutes()).padStart(2, "0")} 更新・募集中 ${d.listed.toLocaleString()}件から選別・毎週更新`;
+    $("meta").textContent = `${u.getMonth() + 1}月${u.getDate()}日 ${String(u.getHours()).padStart(2, "0")}:${String(u.getMinutes()).padStart(2, "0")} 更新・募集中 ${d.listed.toLocaleString()}件から選別・毎日更新`;
     if (d.unjudged) { $("notice").hidden = false; $("notice").textContent = `この更新では ${d.unjudged}件をまだ読み取れていません。次の更新で増えることがあります。`; }
     bind();
     render();
